@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threads コスメ特化 アフィリエイト作成アシスタント</title>
+    <!-- ローカル高速読み込み（外部CDN障害・ブロック完全対策） -->
+    <script src="/static/tailwind.min.js"></script>
+    <script src="/static/lucide.min.js"></script>
+    <script>
+        // 万が一のCDNフォールバック
+        if (!window.tailwind) {
+            document.write('<script src="https://cdn.tailwindcss.com"><\/script>');
+        }
+        if (!window.lucide) {
+            document.write('<script src="https://unpkg.com/lucide@latest"><\/script>');
+        }
+    </script>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans antialiased flex flex-col">
+
+    <!-- ナビゲーションバー -->
+    <header class="bg-slate-900 text-white shadow-md border-b border-slate-800 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 via-rose-500 to-purple-600 flex items-center justify-center shadow-lg font-bold text-white">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-2">
+                        Threads Post Assistant
+                        <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-400 border border-pink-500/30">Threadsコスメ特化 0円</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">20代・30代・40代・子育て コスメ投稿自動生成</p>
+                </div>
+            </div>
+
+            <!-- アカウント切り替え & ボタン群 -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="relative hidden sm:block">
+                    <select id="account-select" class="appearance-none bg-slate-800 border border-slate-700 hover:border-slate-600 text-white text-sm rounded-lg px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-pink-500 cursor-pointer transition">
+                    </select>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none"></i>
+                </div>
+
+                <!-- 📊 売上分析ボタン -->
+                <button id="btn-open-analytics" class="h-9 px-3 bg-emerald-950/70 hover:bg-emerald-900 text-emerald-300 rounded-lg border border-emerald-700/60 flex items-center space-x-1.5 font-bold text-xs transition" title="Amazon売上分析・商品選定">
+                    <i data-lucide="bar-chart-3" class="w-4 h-4 text-emerald-400"></i>
+                    <span class="hidden md:inline">売上分析</span>
+                </button>
+
+                <!-- 📅 スケジュールボタン -->
+                <button id="btn-open-schedule" class="h-9 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 flex items-center space-x-1.5 font-bold text-xs transition" title="投稿スケジュール管理">
+                    <i data-lucide="calendar" class="w-4 h-4 text-purple-400"></i>
+                    <span class="hidden md:inline">スケジュール</span>
+                </button>
+
+                <!-- 1クリックでThreadsアカウントを開くボタン -->
+                <button id="btn-open-active-threads" class="h-9 px-3 bg-gradient-to-r from-pink-600 to-purple-600 hover:opacity-90 text-white rounded-lg border border-pink-500/40 flex items-center space-x-1.5 font-bold text-xs shadow-sm transition" title="Threads アカウントを開く">
+                    <span class="text-sm">@</span>
+                    <span class="hidden md:inline">Threadsを開く</span>
+                </button>
+
+                <button id="btn-open-settings" class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm px-3 py-2 rounded-lg border border-slate-700 transition">
+                    <i data-lucide="sliders" class="w-4 h-4 text-pink-400"></i>
+                    <span class="hidden md:inline">アカウント設定</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- 💄 運用アカウント切り替えタブバー -->
+        <section class="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm space-y-2.5">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+                <div class="flex items-center space-x-2">
+                    <span class="w-6 h-6 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center font-bold text-xs">
+                        <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                    </span>
+                    <span class="text-xs font-bold text-slate-800">Threads運用アカウント切り替えタブ（クリックで即座に切り替え）</span>
+                </div>
+                <span class="text-[11px] text-slate-500 font-mono bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">アソシエイトタグ自動付与: papasprint-22</span>
+            </div>
+            <div id="account-tabs-container" class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+                <!-- JSで動的レンダリング -->
+            </div>
+        </section>
+
+        <!-- 🌟 コスメ日替わりおすすめ商品提案カード -->
+        <section class="bg-gradient-to-br from-pink-500/10 via-rose-500/5 to-purple-500/5 border border-pink-200/80 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+                <div class="flex items-center space-x-2">
+                    <span class="w-7 h-7 rounded-lg bg-gradient-to-tr from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    </span>
+                    <div>
+                        <h2 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                            <span>本日のおすすめコスメ・美容商品提案</span>
+                            <span id="daily-genre-label" class="text-xs font-bold text-pink-900 bg-pink-200/80 px-2 py-0.5 rounded">【💄 コスメ・美容・スキンケア】</span>
+                            <span id="daily-date-badge" class="text-[10px] font-medium bg-white text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full">本日の提案</span>
+                        </h2>
+                        <p class="text-xs text-slate-500">ワンクリックで商品情報とアフィリエイトリンクを読み込みます</p>
+                    </div>
+                </div>
+                <button id="btn-shuffle-suggestions" class="bg-white hover:bg-pink-50 active:bg-pink-100 text-pink-800 border border-pink-300 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs transition">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-pink-600"></i>
+                    <span>別のおすすめを提案（シャッフル）</span>
+                </button>
+            </div>
+            <div id="daily-suggestions-container" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <!-- JSで動的レンダリング -->
+            </div>
+        </section>
+
+        <!-- 1. URL/商品名入力カード & アカウント状態バー -->
+        <section class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-3">
+            <div class="flex flex-col md:flex-row gap-3">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                    </div>
+                    <input type="text" id="input-url"
+                        placeholder="コスメ商品名 (例: TIRTIR クッションファンデ) または Amazon商品URL / ASIN"
+                        class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition"/>
+                </div>
+                <button id="btn-fetch-product"
+                    class="bg-gradient-to-r from-pink-500 to-rose-500 hover:opacity-95 text-white font-semibold px-6 py-3 rounded-xl text-sm flex items-center justify-center space-x-2 shadow-sm transition shrink-0">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    <span>商品情報 ＆ アフィリエイト作成</span>
+                </button>
+            </div>
+
+            <!-- アカウント詳細プロンプト表示バー -->
+            <div class="pt-2 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-600">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="flex items-center gap-1 font-semibold text-slate-800">
+                        <i data-lucide="user-check" class="w-4 h-4 text-pink-500"></i>
+                        選択中: <strong id="active-acc-name" class="text-slate-900">--</strong>
+                        <span id="active-acc-internal-name" class="text-slate-400 font-mono text-[11px] hidden"></span>
+                    </span>
+                    <span class="bg-pink-100 text-pink-900 border border-pink-300 px-2 py-0.5 rounded font-bold text-xs" id="active-genre-badge">💄 コスメ・美容</span>
+                    <span class="bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded font-mono font-bold text-xs" id="current-tag-display">--</span>
+                </div>
+                <button id="btn-quick-edit-prompt" class="text-pink-600 hover:underline text-xs flex items-center gap-1 self-start sm:self-auto font-semibold">
+                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                    [アカウント設定・プロンプトを編集]
+                </button>
+            </div>
+
+            <!-- アカウントプロンプトの概要プレビュー -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs space-y-1">
+                <div class="flex items-center gap-1.5 font-bold text-slate-700">
+                    <i data-lucide="terminal" class="w-3.5 h-3.5 text-pink-500"></i>
+                    <span>適用中のアカウント専用プロンプト指示:</span>
+                </div>
+                <p id="active-prompt-preview" class="text-slate-600 leading-relaxed font-sans line-clamp-2">--</p>
+            </div>
+        </section>
+
+        <!-- 2. 商品プレビュー & プロンプト追加指示カード -->
+        <div id="product-section" class="grid grid-cols-1 lg:grid-cols-12 gap-6 hidden">
+
+            <!-- 左側: 商品プレビュー -->
+            <div class="lg:col-span-5 bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between space-y-4">
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                            <i data-lucide="package" class="w-4 h-4 text-slate-500"></i> 対象商品・キーワード
+                        </span>
+                        <span id="product-asin-badge" class="font-mono text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded">ASIN: --</span>
+                    </div>
+                    <div class="flex gap-3 items-start">
+                        <div class="w-20 h-20 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center p-1.5 shrink-0 overflow-hidden">
+                            <img id="product-img" src="" alt="商品画像" class="max-h-full max-w-full object-contain">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 id="product-title" class="text-xs sm:text-sm font-bold text-slate-900 line-clamp-2 leading-snug">--</h3>
+                            <p id="product-price" class="text-base font-bold text-rose-600 mt-1">--</p>
+                            <button id="btn-open-amazon-search" class="mt-2 text-xs text-blue-600 hover:text-blue-800 bg-blue-50 border border-blue-200 rounded-lg px-2.5 py-1 flex items-center gap-1 transition hidden">
+                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                <span>Amazonで商品一覧を開く</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="product-features-container" class="pt-2 border-t border-slate-100 text-xs text-slate-600 space-y-1 hidden">
+                        <p class="font-semibold text-slate-700">訴求ポイント:</p>
+                        <ul id="product-features" class="list-disc list-inside space-y-0.5 text-slate-600"></ul>
+                    </div>
+                </div>
+                <div class="pt-3 border-t border-slate-100">
+                    <label class="block text-xs font-medium text-slate-500 mb-1">アフィリエイトURL (ID自動付与済)</label>
+                    <div class="flex gap-2">
+                        <input id="product-aff-url" type="text" readonly class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-700 select-all">
+                        <button id="btn-copy-url" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs transition" title="URLをコピー">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右側: プロンプト追加指示 & 投稿スタイル -->
+            <div class="lg:col-span-7 bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between space-y-4">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-pink-500"></i> Threads投稿文 生成設定
+                        </span>
+                        <span id="active-account-card-title" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-pink-50 text-pink-800 border border-pink-300">プロンプト適用中</span>
+                    </div>
+
+                    <!-- 投稿スタイル選択ラジオ -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-2">基本スタイル</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <label class="style-card flex flex-col items-center justify-center p-3 rounded-xl border-2 border-pink-500 bg-pink-50/50 cursor-pointer transition">
+                                <input type="radio" name="post-style" value="review" checked class="hidden">
+                                <i data-lucide="message-square-heart" class="w-5 h-5 text-pink-600 mb-1"></i>
+                                <span class="text-xs font-bold text-slate-900">本音レビュー</span>
+                                <span class="text-[10px] text-slate-500 text-center">使用感・仕上がり</span>
+                            </label>
+                            <label class="style-card flex flex-col items-center justify-center p-3 rounded-xl border-2 border-slate-200 bg-white cursor-pointer transition">
+                                <input type="radio" name="post-style" value="sale" class="hidden">
+                                <i data-lucide="zap" class="w-5 h-5 text-pink-600 mb-1"></i>
+                                <span class="text-xs font-bold text-slate-900">セール・お得速報</span>
+                                <span class="text-[10px] text-slate-500 text-center">最安値・ポイントUP</span>
+                            </label>
+                            <label class="style-card flex flex-col items-center justify-center p-3 rounded-xl border-2 border-slate-200 bg-white cursor-pointer transition">
+                                <input type="radio" name="post-style" value="recommendation" class="hidden">
+                                <i data-lucide="thumbs-up" class="w-5 h-5 text-pink-600 mb-1"></i>
+                                <span class="text-xs font-bold text-slate-900">おすすめ紹介</span>
+                                <span class="text-[10px] text-slate-500 text-center">ベスコス・名品選</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 今回の追加プロンプト -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-semibold text-slate-700">今回の追加プロンプト指示 (任意・空欄OK)</label>
+                            <span class="text-[10px] text-slate-400">今回の投稿だけに適用したいプロンプト指示</span>
+                        </div>
+                        <textarea id="input-custom-prompt" rows="2"
+                            placeholder="例: 「毛穴カバー力」と「崩れにくさ」を強調して / プチプラなのにデパコス級と絶賛して / メリットを3つ箇条書きで / など（空欄でも自動生成されます）"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs leading-relaxed focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-500 transition resize-y">
+                        </textarea>
+                    </div>
+                </div>
+
+                <!-- 生成ボタン -->
+                <button id="btn-generate-posts"
+                    class="w-full bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 hover:opacity-95 active:scale-[0.99] text-white font-bold py-3.5 px-4 rounded-xl text-sm flex items-center justify-center space-x-2 shadow-md shadow-pink-200 transition cursor-pointer">
+                    <i data-lucide="wand-2" class="w-4 h-4 text-white"></i>
+                    <span>Threads用の投稿文を生成する</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. 生成結果表示 (Threads専用カード) -->
+        <div id="results-section" class="space-y-4 hidden">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="send" class="w-4 h-4 text-pink-500"></i>
+                    生成されたThreads投稿文
+                </h2>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200">#PR 自動挿入済</span>
+                    <span class="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200">最大500文字最適化</span>
+                </div>
+            </div>
+
+            <!-- Threads用 メインカード -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-pink-200/80 space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">@</div>
+                        <div>
+                            <span class="font-bold text-sm text-slate-900">Threads 向け最適化投稿文</span>
+                            <span class="text-[11px] text-slate-400 block sm:inline sm:ml-2 font-mono">（読者の共感・購買意欲を高める構成）</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button id="btn-visit-profile-threads" class="text-xs text-slate-500 hover:text-purple-600 flex items-center gap-1 transition" title="Threadsプロフィールを開く">
+                            <i data-lucide="user" class="w-3.5 h-3.5"></i> アカウント確認
+                        </button>
+                        <span id="threads-char-count" class="text-xs text-slate-400 font-mono font-semibold">0 / 500文字</span>
+                    </div>
+                </div>
+
+                <textarea id="textarea-threads" rows="9"
+                    class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-sans leading-relaxed focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-600 transition resize-y">
+                </textarea>
+
+                <!-- 🏷️ ハッシュタグ自動提案パネル -->
+                <div id="hashtag-panel" class="bg-purple-50/60 border border-purple-200/80 rounded-xl p-3.5 space-y-2">
+                    <div class="text-xs text-slate-400 text-center">投稿文を生成するとハッシュタグ候補が表示されます</div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                    <button id="btn-copy-threads" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3 px-4 rounded-xl text-xs sm:text-sm flex items-center justify-center space-x-2 transition cursor-pointer">
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                        <span>テキストをコピー</span>
+                    </button>
+                    <button id="btn-post-threads" class="flex-1 bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 hover:opacity-90 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm flex items-center justify-center space-x-2 shadow-md shadow-pink-200 transition cursor-pointer">
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                        <span>Threads を開いて投稿</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. 最近の生成履歴 -->
+        <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="history" class="w-4 h-4 text-slate-500"></i>
+                    <h3 class="font-bold text-xs uppercase tracking-wider text-slate-600">生成履歴（直近6件）</h3>
+                </div>
+                <button id="btn-clear-history" class="text-slate-400 hover:text-red-500 text-xs transition">履歴をクリア</button>
+            </div>
+            <div id="history-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div class="text-center py-6 text-slate-400 text-xs col-span-full">生成履歴はまだありません</div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 📅 スケジュールモーダル -->
+    <div id="schedule-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-5 bg-slate-900 text-white flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="calendar" class="w-5 h-5 text-purple-400"></i>
+                    <h3 class="font-bold text-base">📅 投稿スケジュール管理</h3>
+                </div>
+                <button id="btn-close-schedule" class="text-slate-400 hover:text-white transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-5 overflow-y-auto flex-1 space-y-5 text-xs">
+
+                <!-- 新規予定追加フォーム -->
+                <div class="bg-purple-50/60 border border-purple-200 rounded-xl p-4 space-y-3">
+                    <p class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+                        <i data-lucide="plus-circle" class="w-4 h-4 text-purple-500"></i>
+                        新規予定を追加
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">アカウント</label>
+                            <select id="schedule-account-select"
+                                class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">投稿予定日</label>
+                            <input type="date" id="schedule-date-input"
+                                class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none"/>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">商品メモ <span class="text-rose-500">*</span></label>
+                        <input type="text" id="schedule-product-memo" placeholder="例: ロムアンド ティント / TIRTIRクッションファンデ"
+                            class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none"/>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">メモ（任意）</label>
+                        <input type="text" id="schedule-note-input" placeholder="例: セール期間中に投稿 / 月曜日の朝に投稿予定"
+                            class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none"/>
+                    </div>
+                    <button id="btn-add-schedule-item"
+                        class="w-full bg-gradient-to-r from-purple-500 to-purple-700 hover:opacity-90 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition cursor-pointer">
+                        <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+                        予定を追加する
+                    </button>
+                </div>
+
+                <!-- 予定一覧 -->
+                <div>
+                    <p class="font-bold text-slate-700 text-sm mb-3 flex items-center gap-1.5">
+                        <i data-lucide="list" class="w-4 h-4 text-slate-500"></i>
+                        投稿予定一覧
+                    </p>
+                    <div id="schedule-list" class="space-y-2">
+                        <div class="text-center py-6 text-slate-400 text-xs">予定はまだありません</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 設定モーダル（アカウント・プロンプト・ジャンル管理） -->
+    <div id="settings-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-150">
+            <div class="p-5 bg-slate-900 text-white flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="sliders" class="w-5 h-5 text-pink-400"></i>
+                    <h3 class="font-bold text-base">Threads運用アカウント・プロンプト管理</h3>
+                </div>
+                <button id="btn-close-settings" class="text-slate-400 hover:text-white transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
+
+                <!-- Google Gemini API キー設定 -->
+                <div class="bg-pink-50/60 border border-pink-200 rounded-xl p-4 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-slate-900 flex items-center gap-1.5">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-pink-600"></i>
+                            Google Gemini API キー (任意 / 無料枠で利用可能)
+                        </span>
+                        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-600 hover:underline text-[11px] flex items-center gap-0.5">
+                            キーを無料取得 <i data-lucide="external-link" class="w-3 h-3 inline"></i>
+                        </a>
+                    </div>
+                    <p class="text-slate-600 text-[11px] leading-relaxed">
+                        APIキーを設定すると、各アカウントのコスメプロンプト（キャラ・口調）に従ってGeminiが完全自動で投稿文を生成します。未設定でもプロンプト連携テンプレート（0円）で動作します。
+                    </p>
+                    <input type="password" id="input-gemini-key" placeholder="AIzaSy..."
+                        class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg font-mono text-xs focus:ring-2 focus:ring-pink-500 focus:outline-none"/>
+                </div>
+
+                <!-- 複数アカウント & プロンプト管理 -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <div>
+                            <span class="font-bold text-slate-800 text-sm">運用アカウント設定</span>
+                            <p class="text-[11px] text-slate-500">アカウントごとにコスメジャンル、ログイン用Gmail、Threadsユーザー名、専用プロンプトを設定できます</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="btn-add-account" class="bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
+                                <i data-lucide="plus" class="w-4 h-4"></i> アカウントを追加
+                            </button>
+                        </div>
+                    </div>
+                    <div id="accounts-list" class="space-y-4">
+                        <!-- JSで動的レンダリング -->
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end space-x-2">
+                <button id="btn-cancel-settings" class="px-4 py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold transition">キャンセル</button>
+                <button id="btn-save-settings" class="px-5 py-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white rounded-xl text-xs font-bold shadow-sm transition">設定を保存する</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- トースト通知 -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-900/90 text-white px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 flex items-center space-x-2 text-xs opacity-0 pointer-events-none transition-all duration-200 z-50 backdrop-blur-sm">
+        <i data-lucide="check-circle" class="w-4 h-4 text-pink-400"></i>
+        <span id="toast-message">コピーしました</span>
+    </div>
+
+    <script src="static/app.js"></script>
+
+    <!-- 📊 売上分析＆商品選定最適化モーダル -->
+    <div id="analytics-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-150">
+            <!-- モーダルヘッダー -->
+            <div class="p-5 bg-gradient-to-r from-emerald-900 via-slate-900 to-purple-950 text-white flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base flex items-center gap-2">
+                            Amazonアソシエイト売上分析 ＆ 商品選定最適化
+                            <span class="text-[10px] font-semibold bg-emerald-400/20 text-emerald-300 border border-emerald-400/30 px-2 py-0.5 rounded-full">CSV自動解析</span>
+                        </h3>
+                        <p class="text-[11px] text-slate-300">売れた商品やついで買いを分析し、最も売れやすいコスメ投稿を作成できます</p>
+                    </div>
+                </div>
+                <button id="btn-close-analytics" class="text-slate-400 hover:text-white transition cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- モーダル本文 -->
+            <div class="p-6 overflow-y-auto flex-1 space-y-6 text-xs">
+
+                <!-- CSVアップロードエリア -->
+                <div id="csv-drop-zone" class="border-2 border-dashed border-emerald-300 bg-emerald-50/40 hover:bg-emerald-50/80 rounded-2xl p-6 text-center transition cursor-pointer space-y-2">
+                    <input type="file" id="input-sales-csv" accept=".csv,.txt" class="hidden">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-xs">
+                        <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-slate-800 text-sm">AmazonレポートCSVファイルをここにドラッグ＆ドロップ</p>
+                        <p class="text-[11px] text-slate-500 mt-0.5">または <span class="text-emerald-700 font-bold underline">ファイルを選択</span> してアップロード（Shift_JIS / UTF-8 対応）</p>
+                    </div>
+                    <p class="text-[10px] text-slate-400">※Amazonアソシエイト管理画面で「レポート作成 → リンク商品 → CSV」で出力したファイル</p>
+                </div>
+
+                <!-- 集計サマリーカード -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4 flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-sm shrink-0 font-bold">
+                            ¥
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-semibold text-slate-500">獲得紹介料（見込み）</p>
+                            <p id="stat-total-earnings" class="text-xl font-extrabold text-emerald-700">¥0</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-sm shrink-0">
+                            <i data-lucide="package-check" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-semibold text-slate-500">発送・注文個数</p>
+                            <p id="stat-total-items" class="text-xl font-extrabold text-blue-700">0 個</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-4 flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-500 text-white flex items-center justify-center shadow-sm shrink-0">
+                            <i data-lucide="sparkles" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-semibold text-slate-500">売れた商品の種類</p>
+                            <p id="stat-total-products" class="text-xl font-extrabold text-purple-700">0 種類</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 売れ筋ランキング一覧テーブル -->
+                <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs space-y-3 p-4">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="trophy" class="w-4 h-4 text-amber-500"></i>
+                            <h4 class="font-bold text-slate-800 text-sm">売れ筋商品ランキング（実際に売れた商品一覧）</h4>
+                        </div>
+                        <span class="text-[10px] text-slate-400">「この商品で投稿を作成」を押すとメイン画面に即座に反映されます</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-[11px] text-slate-500 border-b border-slate-200">
+                                    <th class="py-2.5 px-3 font-semibold w-12 text-center">順位</th>
+                                    <th class="py-2.5 px-3 font-semibold">商品名 / ASIN</th>
+                                    <th class="py-2.5 px-3 font-semibold w-20 text-center">販売数</th>
+                                    <th class="py-2.5 px-3 font-semibold w-24 text-right">紹介料</th>
+                                    <th class="py-2.5 px-3 font-semibold w-36 text-center">アクション</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-ranking-tbody" class="divide-y divide-slate-100 text-xs">
+                                <tr>
+                                    <td colspan="5" class="text-center py-8 text-slate-400">
+                                        CSVファイルをアップロードすると、売れ筋ランキングが表示されます
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- モーダルフッター -->
+            <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end">
+                <button id="btn-close-analytics-footer" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold transition cursor-pointer">
+                    閉じる
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "items": [
+    {
+      "title": "-",
+      "asin": "Other",
+      "category": "-",
+      "qty": 30,
+      "earnings": 4.46
+    },
+    {
+      "title": "-",
+      "asin": "None",
+      "category": "-",
+      "qty": 1,
+      "earnings": 0.0
+    }
+  ],
+  "summary": {
+    "total_earnings": 4.46,
+    "total_items": 31,
+    "total_products": 2
+  }
+}

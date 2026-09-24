@@ -1,0 +1,22 @@
+﻿/* カスタムスタイル */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+body {
+    font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.style-card:has(input:checked) {
+    border-color: #f59e0b;
+    background-color: rgba(254, 243, 199, 0.5);
+}
+
+.style-card:has(input:not(:checked)) {
+    border-color: #e2e8f0;
+    background-color: #ffffff;
+}
+
+/* トーストのアニメーション */
+.toast-visible {
+    transform: translateY(0) !important;
+    opacity: 1 !important;
+}
