@@ -1,3 +1,87 @@
+
+// ── 🚀 完全クライアント完結型（Vercel・スマホ・オフライン 100%保証） ───────────
+
+// クライアント側 Amazon URL / ASIN パーサー
+function parseAmazonUrlClient(urlOrText, tag = 'papasprint-22') {
+    const text = (urlOrText || '').trim();
+    if (!text) return null;
+
+    // ASIN抽出正規表現
+    const asinDirect = text.match(/^[B0-9][A-Z0-9]{9}$/i);
+    let asin = asinDirect ? asinDirect[0].toUpperCase() : null;
+
+    if (!asin) {
+        const patterns = [
+            /\/dp\/([B0-9][A-Z0-9]{9})/i,
+            /\/gp\/product\/([B0-9][A-Z0-9]{9})/i,
+            /\/d\/([B0-9][A-Z0-9]{9})/i,
+            /\/product\/([B0-9][A-Z0-9]{9})/i,
+            /ASIN=([B0-9][A-Z0-9]{9})/i
+        ];
+        for (const p of patterns) {
+            const m = text.match(p);
+            if (m) { asin = m[1].toUpperCase(); break; }
+        }
+    }
+
+    if (asin) {
+        return {
+            asin: asin,
+            title: text.startsWith('http') ? `Amazonコスメ [ASIN: ${asin}]` : text,
+            price: 'Amazonで確認',
+            image_url: '',
+            features: ['口コミ高評価の人気おすすめコスメ', 'Amazonでお得にチェック'],
+            affiliate_url: `https://www.amazon.co.jp/dp/${asin}?tag=${tag}`,
+            is_keyword: false
+        };
+    }
+
+    // キーワード検索の場合
+    return {
+        asin: 'KEYWORD',
+        title: text,
+        price: 'Amazonで確認',
+        image_url: '',
+        features: [`「${text}」の人気おすすめコスメ`, '口コミ高評価アイテム'],
+        affiliate_url: `https://www.amazon.co.jp/s?k=${encodeURIComponent(text)}&tag=${tag}`,
+        is_keyword: true
+    };
+}
+
+// クライアント側 投稿文生成エンジン（みゆ・あやか・さくら・ゆい特化）
+function generatePostsClient(product, style, customPrompt, accountId) {
+    const acc = state.accounts.find(a => a.id === accountId) || getCurrentAccount();
+    const genreId = acc.genre || 'cosme_20s';
+    const title = (product.title || '').trim();
+    const url = product.affiliate_url || `https://www.amazon.co.jp/?tag=${acc.tag || 'papasprint-22'}`;
+    const displayTitle = title.split('【')[0].split(' (')[0].trim();
+
+    let threadsPost = '';
+    let xPost = '';
+
+    if (genreId === 'cosme_20s') {
+        xPost = `これ使ってから『垢抜けたね！』って褒められた神コスメ💄✨\n\n『${displayTitle}』\nプチプラなのに仕上がりはデパコス級。\n透け感と血色が絶妙でメイクに自信がついたお守りアイテム！\n\n${url}\n#PR #垢抜けメイク #プチプラコスメ #韓国コスメ #バズコスメ`;
+        threadsPost = `【20代垢抜け】『垢抜けたね！』って褒められるようになった本気のリピ買いコスメ💄✨\n\n『${displayTitle}』\n\n学生さんや20代OLさんに全力で推したい！\nプチプラなのに仕上がりが本当に上品で、毎朝メイクするたびに気分が上がります。\n\n💡ここが本当に良かった（リアルな実感）：\n・肌馴染み抜群で、テクいらずでトレンド顔になれる\n・朝塗ってから夜までツヤが続いてメイク直し激減\n・友達から『それどこの？』って聞かれる回数UP！\n\n一度使うと手放せなくなる名品です👇\n\n${url}\n\n#PR #垢抜けメイク #プチプラコスメ #韓国コスメ #バズコスメ #ベストコスメ`;
+
+    } else if (genreId === 'cosme_30s') {
+        xPost = `夕方のどんよりくすみが消えた…！30代の肌を救ってくれた実力派✨\n\n『${displayTitle}』\nオフィスで鏡を見ても肌が疲れて見えないのが本当に嬉しい。自然な透明感が一日中続く！\n\n${url}\n#PR #30代コスメ #毛穴ケア #くすみケア #オフィスメイク`;
+        threadsPost = `【30代リアル愛用】夕方の毛穴落ち・くすみ・疲れ顔から救ってくれた名品コスメ✨\n\n『${displayTitle}』\n\nお肌の曲がり角を感じ始めた30代にこそ使ってほしい実力派！自然なツヤと透明感を仕込めるので毎日のオフィスメイクに欠かせません。\n\n💡実感している具体的なベネフィット：\n・毛穴や乾燥を光で飛ばしてキメが整って見える\n・夕方になっても『疲れて見えない清潔感』が続く\n・肌への負担感が少なくて毎日安心して使える\n\n大人の肌に寄り添う逸品です👇\n\n${url}\n\n#PR #30代コスメ #毛穴ケア #くすみケア #オフィスメイク #大人の美肌`;
+
+    } else if (genreId === 'cosme_40s') {
+        xPost = `お肌にハリとツヤが戻って感動…！40代からの大人の肌を格上げする極上名品🌸\n\n『${displayTitle}』\n乾燥小じわが気にならなくなって毎朝鏡を見るのが楽しみに。厚塗り感ゼロの品格ツヤ肌！\n\n${url}\n#PR #40代コスメ #エイジングケア #ツヤ肌 #乾燥小じわ`;
+        threadsPost = `【40代品格美容】『ハリ不足』と『乾燥小じわ』を本気で底上げしてくれた愛用品🌸✨\n\n『${displayTitle}』\n\n色々試してきた大人世代にこそ実感していただきたい名品。厚塗りで隠すのではなく、お肌そのものが潤いで満たされるようなツヤを与えてくれます。\n\n💡実際に感じたベネフィット：\n・パンッと押し返すようなハリ感で表情が若々しく明るく\n・夕方になっても目元口元のシワっぽさが目立たない\n・『お肌ツヤツヤだね』と同年代の友人から褒められた\n\n大人の肌に自信をくれる名品です👇\n\n${url}\n\n#PR #40代コスメ #エイジングケア #ツヤ肌 #ハリ肌 #大人美容`;
+
+    } else { // cosme_kosodate
+        xPost = `朝1分で顔が完成する救世主！忙しい子育てママの神時短コスメ👶🍼\n\n『${displayTitle}』\nパパッと塗るだけで手抜き感ゼロのすっぴん美肌。石鹸オフできて子どもがすり寄ってきても安心！\n\n${url}\n#PR #時短コスメ #時短メイク #ママコスメ #子育てママ`;
+        threadsPost = `【子育てママ必見】毎朝1分で『ちゃんとキレイなママ』になれた神時短コスメ👶✨\n\n『${displayTitle}』\n\n朝のバタバタで鏡を見る暇すらないママへ！\n手抜きに見えないのに、驚くほどスピーディーに美肌が整うリアル愛用アイテムです。\n\n💡ママに嬉しい具体的なベネフィット：\n・サッと塗るだけで寝不足のくすみ肌もパッと明るく\n・公園遊びでも安心＆夜は子どもと一緒に石鹸オフ\n・子どもに顔をスリスリされても優しい使い心地\n\n忙しいママの毎日が楽になりますよ👇\n\n${url}\n\n#PR #時短コスメ #時短メイク #ママメイク #1分メイク #買ってよかった`;
+    }
+
+    return {
+        x_post: xPost.trim(),
+        threads_post: threadsPost.trim()
+    };
+}
+
 // ==========================================
 // Amazon SNS Affiliate Assistant
 // みゆ(20代)・あやか(30代)・さくら(40代)・ゆい(子育て) Threads特化版
@@ -468,9 +552,27 @@ function setupEventListeners() {
     if (btnCopyThreads) btnCopyThreads.addEventListener('click', () => copyText(document.getElementById('textarea-threads')?.value || '', 'Threads 投稿文をコピーしました！'));
 
     const btnPostThreads = document.getElementById('btn-post-threads');
-    if (btnPostThreads) btnPostThreads.addEventListener('click', () => {
+    if (btnPostThreads) btnPostThreads.addEventListener('click', async () => {
         const val = document.getElementById('textarea-threads')?.value || '';
-        if (val) copyText(val, '投稿文をコピーしました！Threadsを開きます');
+        if (val) copyText(val, '投稿文をコピーしました！専用Chromeを起動します');
+        
+        const acc = getCurrentAccount();
+        try {
+            // アカウント専用Chromeの自動起動を試みる
+            const res = await fetch('/api/open-threads-profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ account_id: state.currentAccountId, post_text: val })
+            });
+            if (res.ok) {
+                showToast(`🚀 【${acc.name}】専用Chromeを起動しました！`);
+                return;
+            }
+        } catch (e) {
+            console.log('Local profile launcher unavailable, falling back to window.open');
+        }
+
+        // フォールバック（外部アクセス時やChrome未検出時）
         window.open(`https://www.threads.net/intent/post?text=${encodeURIComponent(val)}`, '_blank');
     });
 
@@ -498,19 +600,28 @@ async function fetchProduct() {
     const origHtml = btn ? btn.innerHTML : '';
     if (btn) { btn.disabled = true; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> <span>情報取得中...</span>`; refreshIcons(); }
 
+    const acc = getCurrentAccount();
+    const tag = acc.tag || 'papasprint-22';
+
     try {
-        const res = await fetch('/api/fetch-product', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: input, account_id: state.currentAccountId }) });
-        if (!res.ok) throw new Error('取得失敗');
-        const product = await res.json();
-        state.currentProduct = product;
-        renderProductSection(product);
+        // まずサーバー通信を試みる（ローカル環境用）
+        const res = await fetch('/api/fetch-product', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: input, account_id: state.currentAccountId })
+        });
+        if (res.ok) {
+            const product = await res.json();
+            state.currentProduct = product;
+            renderProductSection(product);
+            return;
+        }
+        throw new Error('サーバー未接続');
     } catch (e) {
-        console.error(e);
-        const acc = getCurrentAccount();
-        const tag = acc.tag || 'papasprint-22';
-        const fallbackProduct = { asin: 'KEYWORD', title: input, price: 'Amazonで確認', image_url: '', features: ['大人気おすすめコスメ', '口コミ高評価アイテム'], affiliate_url: `https://www.amazon.co.jp/s?k=${encodeURIComponent(input)}&tag=${tag}`, is_keyword: true };
-        state.currentProduct = fallbackProduct;
-        renderProductSection(fallbackProduct);
+        // サーバーが無くても（Vercelやスマホでも）クライアント側で即座に解析完了！
+        const clientProduct = parseAmazonUrlClient(input, tag);
+        state.currentProduct = clientProduct;
+        renderProductSection(clientProduct);
     } finally {
         if (btn) { btn.disabled = false; btn.innerHTML = origHtml; refreshIcons(); }
     }
@@ -1166,5 +1277,25 @@ function createPostFromSalesItem(title, asin) {
         input.scrollIntoView({ behavior: 'smooth', block: 'center' });
         fetchProduct();
         showToast(`「${title.slice(0, 15)}...」を投稿作成フォームにセットしました！✨`);
+    }
+}
+
+
+// 🌐 特定アカウントの専用Chromeを手動起動（初回ログイン用・確認用）
+async function launchChromeProfile(accountId) {
+    const acc = state.accounts.find(a => a.id === accountId) || getCurrentAccount();
+    try {
+        const res = await fetch('/api/open-threads-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ account_id: accountId, post_text: '' })
+        });
+        if (res.ok) {
+            showToast(`🚀 【${acc.name}】専用Chromeを起動しました！`);
+        } else {
+            showToast('Chromeの起動に失敗しました（ローカルPCのみ対応）');
+        }
+    } catch (e) {
+        showToast('専用Chromeの起動はローカルPCで実行してください');
     }
 }
