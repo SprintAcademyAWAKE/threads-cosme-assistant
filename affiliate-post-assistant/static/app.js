@@ -543,7 +543,7 @@ function setupEventListeners() {
     });
 
     const btnGeneratePosts = document.getElementById('btn-generate-posts') || document.getElementById('btn-generate');
-    if (btnGeneratePosts) btnGeneratePosts.addEventListener('click', e => { e.preventDefault(); generatePost(); });
+    if (btnGeneratePosts) btnGeneratePosts.addEventListener('click', e => { e.preventDefault(); generatePosts(); });
 
     const btnCopyUrl = document.getElementById('btn-copy-url');
     if (btnCopyUrl) btnCopyUrl.addEventListener('click', () => copyText(document.getElementById('product-aff-url')?.value || '', 'アフィリエイトURLをコピーしました！'));
@@ -685,41 +685,21 @@ function renderProductSection(p) {
 
 // ── 投稿文生成 ───────────────────────────────────────────────────────────────
 async function generatePost() {
-    if (!state.currentProduct) {
-        const inputVal = document.getElementById('input-url')?.value.trim();
-        if (inputVal) { await fetchProduct(); }
-        else { showToast('先に商品名またはURLを入力してください'); document.getElementById('input-url')?.focus(); return; }
-    }
-
-    const btn = document.getElementById('btn-generate-posts') || document.getElementById('btn-generate');
-    const origHtml = btn ? btn.innerHTML : '';
-    if (btn) { btn.disabled = true; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> <span>Threads用コスメ投稿文を生成中...</span>`; refreshIcons(); }
-
-    const selectedRadio = document.querySelector('input[name="post-style"]:checked');
-    const style = selectedRadio ? selectedRadio.value : 'review';
-    const customPrompt = document.getElementById('input-custom-prompt')?.value.trim() || '';
-
-    try {
-        const res = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ product: state.currentProduct, style, custom_prompt: customPrompt, account_id: state.currentAccountId }) });
-        if (!res.ok) throw new Error('生成失敗');
-        const data = await res.json();
-        renderGeneratedResults(data);
-        await loadHistory();
-        showToast('Threads用投稿文の生成が完了しました！✨');
-    } catch (e) {
-        console.error(e);
-        showToast('生成中にエラーが発生しました: ' + e.message);
-    } finally {
-        if (btn) { btn.disabled = false; btn.innerHTML = origHtml; refreshIcons(); }
-    }
+    return await generatePosts();
 }
 
 
 // ── 投稿文生成（メインロジック） ─────────────────────────────────────────────
 async function generatePosts() {
     if (!state.currentProduct) {
-        showToast('先に対象商品を読み込んでください');
-        return;
+        const inputVal = document.getElementById('input-url')?.value.trim();
+        if (inputVal) {
+            await fetchProduct();
+        }
+        if (!state.currentProduct) {
+            showToast('先に商品名またはURLを入力してください');
+            return;
+        }
     }
 
     const btn = document.getElementById('btn-generate-posts');
