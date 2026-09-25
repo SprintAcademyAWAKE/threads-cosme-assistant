@@ -552,28 +552,15 @@ function setupEventListeners() {
     if (btnCopyThreads) btnCopyThreads.addEventListener('click', () => copyText(document.getElementById('textarea-threads')?.value || '', 'Threads 投稿文をコピーしました！'));
 
     const btnPostThreads = document.getElementById('btn-post-threads');
-    if (btnPostThreads) btnPostThreads.addEventListener('click', async () => {
+    if (btnPostThreads) btnPostThreads.addEventListener('click', () => {
         const val = document.getElementById('textarea-threads')?.value || '';
-        if (val) copyText(val, '投稿文をコピーしました！専用Chromeを起動します');
-        
-        const acc = getCurrentAccount();
-        try {
-            // アカウント専用Chromeの自動起動を試みる
-            const res = await fetch('/api/open-threads-profile', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ account_id: state.currentAccountId, post_text: val })
-            });
-            if (res.ok) {
-                showToast(`🚀 【${acc.name}】専用Chromeを起動しました！`);
-                return;
-            }
-        } catch (e) {
-            console.log('Local profile launcher unavailable, falling back to window.open');
+        if (val) {
+            copyText(val, '投稿文をコピーしました！Threadsを開きます');
         }
-
-        // フォールバック（外部アクセス時やChrome未検出時）
-        window.open(`https://www.threads.net/intent/post?text=${encodeURIComponent(val)}`, '_blank');
+        const targetUrl = val 
+            ? `https://www.threads.net/intent/post?text=${encodeURIComponent(val)}` 
+            : 'https://www.threads.net';
+        window.open(targetUrl, '_blank');
     });
 
     const btnVisitThreads = document.getElementById('btn-visit-profile-threads');
