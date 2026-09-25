@@ -714,6 +714,89 @@ async function generatePost() {
     }
 }
 
+
+// ── 投稿文生成（メインロジック） ─────────────────────────────────────────────
+async function generatePosts() {
+    if (!state.currentProduct) {
+        showToast('先に対象商品を読み込んでください');
+        return;
+    }
+
+    const btn = document.getElementById('btn-generate-posts');
+    const origHtml = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> <span>投稿文を生成中...</span>`;
+        refreshIcons();
+    }
+
+    const selectedRadio = document.querySelector('input[name="post-style"]:checked');
+    const style = selectedRadio ? selectedRadio.value : 'review';
+    const customPrompt = document.getElementById('input-custom-prompt')?.value.trim() || '';
+
+    try {
+        let data = null;
+
+        // 1. サーバーAPIがある場合（ローカル稼働時）は試行
+        try {
+            const res = await fetch('/api/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    product: state.currentProduct,
+                    style: style,
+                    custom_prompt: customPrompt,
+                    account_id: state.currentAccountId
+                })
+            });
+            if (res.ok) {
+                data = await res.json();
+            }
+        } catch (serverErr) {
+            console.log('Server not responding, using instant client-side generator');
+        }
+
+        // 2. サーバーレス環境（Vercel/スマホ等）はクライアント側エンジンで即時生成！
+        if (!data || !data.threads_post) {
+            data = generatePostsClient(state.currentProduct, style, customPrompt, state.currentAccountId);
+        }
+
+        renderGeneratedResults(data);
+
+        // 履歴に追加
+        const acc = getCurrentAccount();
+        const historyItem = {
+            id: 'hist-' + Date.now(),
+            timestamp: new Date().toLocaleString('ja-JP'),
+            account_id: state.currentAccountId,
+            account_name: acc ? acc.name : 'アカウント',
+            product_title: state.currentProduct.title,
+            product_asin: state.currentProduct.asin,
+            product_image: state.currentProduct.image_url || '',
+            affiliate_url: state.currentProduct.affiliate_url,
+            threads_post: data.threads_post,
+            posted: false
+        };
+        state.history.unshift(historyItem);
+        if (state.history.length > 50) state.history = state.history.slice(0, 50);
+        renderHistory();
+
+        showToast('Threads用投稿文の生成が完了しました！✨');
+    } catch (e) {
+        console.error('generatePosts error:', e);
+        // 万が一の例外時も絶対に止めず直接表示
+        const fallback = generatePostsClient(state.currentProduct, style, customPrompt, state.currentAccountId);
+        renderGeneratedResults(fallback);
+        showToast('Threads用投稿文を生成しました！✨');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            refreshIcons();
+        }
+    }
+}
+
 function renderGeneratedResults(data) {
     const section = document.getElementById('results-section');
     const threadsContent = document.getElementById('textarea-threads');
